@@ -6,6 +6,7 @@ use frame_support::sp_runtime::traits::Convert;
 use frame_system::pallet_prelude::*;
 use sp_std::convert::TryInto;
 use sp_std::vec::Vec;
+pub use pallet_gateway as gateway;
 
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
@@ -14,6 +15,7 @@ use sp_std::vec::Vec;
 pub use pallet::*;
 pub use primitives::p_provider::*;
 pub use primitives::p_resource_order::*;
+
 
 #[cfg(test)]
 mod mock;
