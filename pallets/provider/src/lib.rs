@@ -420,6 +420,22 @@ pub mod pallet {
             Ok(())
         }
     }
+
+    pub trait ProviderPayout<T: frame_system::Config> {
+        fn provider_online() -> Vec<<T as frame_system::Config>::AccountId>;  
+    }
+    
+    impl<T: Config> ProviderPayout<T> for Pallet<T> {
+        fn provider_online() -> Vec<<T as frame_system::Config>::AccountId> {
+            let mut provider_accountid : Vec<T::AccountId> = Vec::new();
+            // Get the accountId of the currently active provider
+            for i in Provider::<T>::iter() {
+                provider_accountid.push(i.0);
+            }
+            provider_accountid
+        }
+    }
+
 }
 
 
