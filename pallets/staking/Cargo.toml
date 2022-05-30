@@ -101,6 +101,16 @@ optional = true
 tag = 'monthly-2021-07'
 version = '3.1.0'
 
+[dependencies.pallet-provider]
+default-features = false
+path = '../provider'
+version = '3.0.0'
+
+[dependencies.pallet-gateway]
+default-features = false
+path = '../gateway'
+version = '3.0.0'
+
 # [dev-dependencies]
 # sp-storage = { version = "3.0.0", path = "../../primitives/storage" }
 # sp-tracing = { version = "3.0.0", path = "../../primitives/tracing" }
@@ -131,6 +141,8 @@ std = [
 	"sp-application-crypto/std",
 	"log/std",
 	"frame-election-provider-support/std",
+	"pallet-provider/std",
+	"pallet-gateway/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking",
