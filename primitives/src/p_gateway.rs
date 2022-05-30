@@ -6,6 +6,8 @@ use sp_std::vec::Vec;
 use frame_support::Parameter;
 use sp_runtime::traits::AtLeast32BitUnsigned;
 
+// use crate::AccountId;
+
 /// Gateway node
 #[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
@@ -34,4 +36,9 @@ impl<BlockNumber, AccountId> GatewayNode<BlockNumber, AccountId>
     }
 }
 
+
+pub trait GatewayPayout {
+    type AccountId;
+    fn gate_way_online() -> Vec<Self::AccountId>;  
+}
 

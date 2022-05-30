@@ -280,6 +280,9 @@ pub mod slashing;
 pub mod inflation;
 pub mod weights;
 
+use pallet_gateway::GatewayPayout;
+use pallet_provider::ProviderPayout;
+
 use sp_std::{
 	result,
 	prelude::*,
@@ -922,6 +925,10 @@ pub mod pallet {
 
 		/// Weight information for extrinsics in this pallet.
 		type WeightInfo: WeightInfo;
+
+
+		type GatewayAccount: GatewayPayout;
+		type ProviderAccount: ProviderPayout;
 	}
 
 	#[pallet::extra_constants]

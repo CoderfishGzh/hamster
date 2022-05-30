@@ -490,6 +490,9 @@ impl pallet_staking::Config for Runtime {
 	type GenesisElectionProvider = 	onchain::OnChainSequentialPhragmen<
 		pallet_election_provider_multi_phase::OnChainConfig<Self>,
 	>;
+
+	type GatewayAccount = Gateway;
+	type ProviderAccount = Provider;
 }
 
 parameter_types! {

@@ -199,3 +199,7 @@ pub trait ProviderInterface {
     (index: u64, resource: ComputingResource<Self::BlockNumber, Self::AccountId>);
 }
 
+pub trait ProviderPayout {
+    type AccountId;
+    fn provider_online() -> Vec<Self::AccountId>;  
+}
