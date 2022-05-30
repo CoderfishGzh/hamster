@@ -1233,7 +1233,7 @@ pub mod pallet {
 	pub struct GenesisConfig<T: Config> {
 		pub history_depth: u32,
 		pub validator_count: u32,
-		pub minimum_validator_count: u32,
+		pub minimum_validator_count: u32, 
 		pub invulnerables: Vec<T::AccountId>,
 		pub force_era: Forcing,
 		pub slash_reward_fraction: Perbill,
@@ -2384,13 +2384,28 @@ impl<T: Config> Pallet<T> {
 		);
 
 		// This is how much validator + nominators are entitled to.
+		// 總的收益金額
 		let validator_total_payout = validator_total_reward_part * era_payout;
 
+		// 獲取provider在線人員名單
+		let provider_nums = T::ProviderAccount::provider_online();
+		// 獲取gateway在線人員名單
+		let gateway_nums = T::GatewayAccount::gate_way_online();
+		// 50% 金額給予 provider 和 gateway
+		let provider_payout = validator_total_payout;
+		let gateway_payout = validator_total_payout;
+		
+		for i in &provider_nums {
+			T::Currency::deposit_creating(i, provider_payout);
+		}
+
+		// 剩下50%留給驗證者 和 提名人
+		let validator_total_payout = validator_total_payout;
 		let validator_prefs = Self::eras_validator_prefs(&era, &validator_stash);
 		// Validator first gets a cut off the top.
 		let validator_commission = validator_prefs.commission;
 		let validator_commission_payout = validator_commission * validator_total_payout;
-
+		
 		let validator_leftover_payout = validator_total_payout - validator_commission_payout;
 		// Now let's calculate how this is split to the validator.
 		let validator_exposure_part = Perbill::from_rational(
