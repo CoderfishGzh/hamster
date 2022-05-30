@@ -26,7 +26,6 @@ type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Con
 
 #[frame_support::pallet]
 pub mod pallet {
-    use primitives::Balance;
 
     use super::*;
 
@@ -219,6 +218,26 @@ pub mod pallet {
             Self::deposit_event(Event::HealthCheckSuccess(who.clone(), block_number));
             Ok(())
         }
+
+
+
+        
     }
+
+    pub trait GatewayPayout<T: frame_system::Config> {
+        fn gate_way_online() -> Vec<<T as frame_system::Config>::AccountId>;  
+    }
+    
+    impl<T: Config> GatewayPayout<T> for Pallet<T> {
+        fn gate_way_online() -> Vec<<T as frame_system::Config>::AccountId> {
+            let mut gateway_accoutid : Vec<T::AccountId> = Vec::new();
+            // Get the accountId of the currently active gateway node
+            for node in GatewayNodes::<T>::iter() {
+                gateway_accoutid.push(node.1.account_id.clone());
+            }
+            gateway_accoutid
+        }
+    }
+
 }
 
