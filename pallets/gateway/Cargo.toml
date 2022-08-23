@@ -33,7 +33,7 @@ version = '3.0.0'
 
 [features]
 default = ['std']
-runtime-benchmarks = ['frame-benchmarking']
+runtime-benchmarks = ["frame-benchmarking"]
 std = [
     'codec/std',
     'frame-support/std',
@@ -107,3 +107,4 @@ pallet-timestamp = { version = "3.0.0", git = 'https://gitee.com/mohaijiang/subs
 pallet-market = {version = "3.0.0", path = '../market'}
 pallet-chunkcycle = {version = "3.0.0", path = '../chunkcycle'}
 pallet-resource-order = {version = "3.0.0", path = '../resource-order'}
+

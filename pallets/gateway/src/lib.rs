@@ -8,6 +8,10 @@ mod mock;
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "runtime-benchmarks")]
+mod benchmarking;
+mod testing_utils;
+
 use frame_support::sp_runtime::traits::Convert;
 
 use frame_support::{dispatch::DispatchResult, pallet_prelude::*, traits::Currency};
@@ -113,6 +117,7 @@ pub mod pallet {
         pub gateway_node_count: u64,
         pub account_peer_map: Vec<(T::AccountId, Vec<Vec<u8>>)>,
         pub gateways: Vec<Vec<u8>>,
+        pub total_online_time: u128,
     }
 
     // The default value for the genesis config type.
@@ -124,6 +129,7 @@ pub mod pallet {
                 gateway_node_count: Default::default(),
                 account_peer_map: Default::default(),
                 gateways: Default::default(),
+                total_online_time: Default::default(),
             }
         }
     }
@@ -141,6 +147,7 @@ pub mod pallet {
             }
 
             <Gateways<T>>::set(self.gateways.clone());
+            <TotalOnlineTime<T>>::set(self.total_online_time);
         }
     }
 
@@ -330,6 +337,11 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
+
+    pub fn change_staking_for_benchmarking(who: T::AccountId) {
+        T::MarketInterface::change_staking_for_benchmarking(who);
+    }
+
     pub fn offline_gateway_node(who: T::AccountId, peer_id: Vec<u8>) {
         // 1. update the gateway node count
         let gateway_node_count = GatewayNodeCount::<T>::get();

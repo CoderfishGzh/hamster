@@ -839,7 +839,6 @@ impl_runtime_apis! {
             config: frame_benchmarking::BenchmarkConfig
         ) -> Result<Vec<frame_benchmarking::BenchmarkBatch>, sp_runtime::RuntimeString> {
             use frame_benchmarking::{Benchmarking, BenchmarkBatch, add_benchmark, TrackedStorageKey};
-
             use frame_system_benchmarking::Pallet as SystemBench;
             impl frame_system_benchmarking::Config for Runtime {}
 
@@ -860,6 +859,7 @@ impl_runtime_apis! {
             let params = (&config, &whitelist);
 
 
+
             add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
             add_benchmark!(params, batches, pallet_balances, Balances);
             add_benchmark!(params, batches, pallet_timestamp, Timestamp);
@@ -867,6 +867,7 @@ impl_runtime_apis! {
             //add_benchmark!(params, batches, pallet_resource_order, ResourceOrder);
             //add_benchmark!(params, batches, pallet_gateway, Gateway);
             add_benchmark!(params, batches, pallet_market, Market);
+            add_benchmark!(params, batches, pallet_gateway, Gateway);
 
             if batches.is_empty() { return Err("Benchmark not found for this pallet.".into()) }
             Ok(batches)

@@ -43,6 +43,7 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 mod weights2;
+mod testing_utils;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -775,6 +776,17 @@ impl<T: Config> MarketInterface<<T as frame_system::Config>::AccountId> for Pall
 
     fn client_staking_fee() -> u128 {
         T::BalanceToNumber::convert(ClientBaseFee::<T>::get())
+    }
+
+    // change the user staking info, only used by benchmarking 
+    fn change_staking_for_benchmarking(who: T::AccountId) {
+        let staking_amount = primitives::p_market::StakingAmount {
+            amount: 200_000_000_000_000,
+            active_amount: 200_000_000_000_000,
+            lock_amount: 0,
+        };
+        
+       Staking::<T>::insert(who.clone(), staking_amount);
     }
 }
 

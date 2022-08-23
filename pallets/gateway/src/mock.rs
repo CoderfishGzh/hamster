@@ -2,15 +2,12 @@ use crate as pallet_gateway;
 use crate::*;
 use frame_support::parameter_types;
 use frame_system as system;
-
 use primitives::p_gateway::GatewayNode as node;
-
-use primitives::Balance;
+use primitives::p_market::*;
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, ConvertInto, IdentityLookup},
-    BuildStorage,
 };
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
@@ -63,7 +60,6 @@ impl system::Config for Test {
     type BaseCallFilter = ();
     type BlockWeights = ();
     type BlockLength = ();
-    type DbWeight = ();
     type Origin = Origin;
     type Call = Call;
     type Index = u64;
@@ -75,6 +71,7 @@ impl system::Config for Test {
     type Header = Header;
     type Event = Event;
     type BlockHashCount = BlockHashCount;
+    type DbWeight = ();
     type Version = ();
     type PalletInfo = PalletInfo;
     type AccountData = pallet_balances::AccountData<u128>;
@@ -105,7 +102,7 @@ impl pallet_gateway::Config for Test {
     type Event = Event;
     type Currency = Balances;
     type BalanceToNumber = ConvertInto;
-    type NumberToBalance = ();
+    type NumberToBalance = ConvertInto;
     type GatewayNodeTimedRemovalInterval = GatewayNodeTimedRemovalInterval;
     type GatewayNodeHeartbeatInterval = GatewayNodeHeartbeatInterval;
 
@@ -205,6 +202,30 @@ pub fn test_offline_ext() -> sp_io::TestExternalities {
         gateway_node_count: 1,
         account_peer_map: vec![(1, vec!["peer_id".as_bytes().to_vec()])],
         gateways: vec!["peer_id".as_bytes().to_vec()],
+        total_online_time: 10,
+    }
+    .assimilate_storage(&mut t)
+    .unwrap();
+
+    let staking_amount = StakingAmount {
+        amount: 1000_000_000_000_000,
+        lock_amount: 100_000_000_000_000,
+        active_amount: 900_000_000_000_000,
+    };
+    let total_staked = TotalStakingAmount {
+        total_staking: 100_000_000_000_000,
+        total_gateway_staking: 100_000_000_000_000,
+        total_client_staking: 0,
+        total_provider_staking: 0,
+    };
+
+    pallet_market::GenesisConfig::<Test> {
+        staking: vec![(1, staking_amount.clone())],
+        gateway_base_fee: 100_000_000_000_000,
+        market_base_multiplier: (5, 3, 1),
+        provider_base_fee: 100_000_000_000_000,
+        client_base_fee: 100_000_000_000_000,
+        total_staked,
     }
     .assimilate_storage(&mut t)
     .unwrap();
@@ -227,6 +248,7 @@ pub fn test_hearbreat_ext() -> sp_io::TestExternalities {
         gateway_node_count: 1,
         account_peer_map: vec![(1, vec!["peer_id1".as_bytes().to_vec()])],
         gateways: vec!["peer_id1".as_bytes().to_vec()],
+        total_online_time: 10,
     }
     .assimilate_storage(&mut t)
     .unwrap();
@@ -234,9 +256,6 @@ pub fn test_hearbreat_ext() -> sp_io::TestExternalities {
     let ext = sp_io::TestExternalities::new(t);
     ext
 }
-
-
-
 
 // pub fn test_heartbeart_ext() -> sp_io::TestExternalities {
 //     let mut t = system::GenesisConfig::default()
@@ -284,3 +303,10 @@ pub fn test_hearbreat_ext() -> sp_io::TestExternalities {
 //     ext.execute_with(|| System::set_block_number(1));
 //     ext
 // }
+
+pub fn mock_test() -> sp_io::TestExternalities {
+    system::GenesisConfig::default()
+        .build_storage::<Test>()
+        .unwrap()
+        .into()
+}

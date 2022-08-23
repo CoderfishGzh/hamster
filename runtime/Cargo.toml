@@ -28,6 +28,8 @@ runtime-benchmarks = [
     'pallet-resource-order/runtime-benchmarks',
     'sp-runtime/runtime-benchmarks',
     'pallet-market/runtime-benchmarks',
+    'pallet-gateway/runtime-benchmarks',
+
 ]
 std = [
     "sp-authority-discovery/std",

@@ -34,8 +34,6 @@ mod benchmarking;
 type BalanceOf<T> =
     <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
-const PALLET_ID: PalletId = PalletId(*b"ttchain!");
-
 #[frame_support::pallet]
 pub mod pallet {
     use super::*;
@@ -140,16 +138,6 @@ pub mod pallet {
     pub(super) type UserOrders<T: Config> =
         StorageMap<_, Twox64Concat, T::AccountId, Vec<u64>, ValueQuery>;
 
-    /// the free resource apply info
-    #[pallet::storage]
-    #[pallet::getter(fn apply_orders)]
-    pub(super) type ApplyOrders<T: Config> =
-        StorageMap<_, Twox64Concat, u64, ApplyOrder<T::AccountId, T::BlockNumber>, OptionQuery>;
-
-    #[pallet::storage]
-    #[pallet::getter(fn apply_users)]
-    pub(super) type ApplyUsers<T: Config> =
-        StorageMap<_, Twox64Concat, T::AccountId, u64, ValueQuery>;
 
     // The genesis config type.
     #[pallet::genesis_config]
@@ -843,93 +831,7 @@ pub mod pallet {
             Ok(())
         }
 
-        /// apply free resource
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        pub fn apply_free_resource(
-            origin: OriginFor<T>,
-            cpu: u64,
-            memory: u64,
-            duration: u32,
-            public_key: Bytes,
-            deploy_type: u32,
-        ) -> DispatchResult {
-            let who = ensure_signed(origin)?;
-            ensure!(
-                !ApplyUsers::<T>::contains_key(who.clone()),
-                Error::<T>::FreeResourceApplied
-            );
-            let order_index = OrderIndex::<T>::get();
-            let customer = TenantInfo::new(who.clone(), public_key.clone());
-            // get the current block height
-            let block_number = <frame_system::Pallet<T>>::block_number();
-            let now = T::UnixTime::now();
-            let apply_order = ApplyOrder::new(order_index, customer, block_number, now);
-            ApplyOrders::<T>::insert(order_index, apply_order);
-            ApplyUsers::<T>::insert(who.clone(), order_index);
-            OrderIndex::<T>::put(order_index + 1);
-            Self::deposit_event(Event::FreeResourceApplied(
-                who,
-                order_index,
-                cpu,
-                memory,
-                duration,
-                deploy_type,
-                public_key,
-            ));
 
-            Ok(())
-        }
-
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        pub fn process_apply_free_resource(
-            origin: OriginFor<T>,
-            order_index: u64,
-            peer_id: Vec<u8>,
-        ) -> DispatchResult {
-            let who = ensure_signed(origin)?;
-
-            ensure!(
-                ApplyOrders::<T>::contains_key(order_index),
-                Error::<T>::FreeResourceNotExists
-            );
-            let mut apply_order = ApplyOrders::<T>::get(order_index).unwrap();
-            ensure!(
-                apply_order.status == OrderStatus::Pending,
-                Error::<T>::FreeResourceHasBeDeal
-            );
-            // process
-            apply_order.processed(who.clone(), peer_id.clone());
-            ApplyOrders::<T>::insert(order_index, apply_order);
-
-            Self::deposit_event(Event::FreeResourceProcessed(order_index, peer_id));
-
-            Ok(())
-        }
-
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        pub fn release_apply_free_resource(
-            origin: OriginFor<T>,
-            order_index: u64,
-        ) -> DispatchResult {
-            let who = ensure_signed(origin)?;
-
-            ensure!(
-                ApplyOrders::<T>::contains_key(order_index),
-                Error::<T>::FreeResourceNotExists
-            );
-            let apply_order = ApplyOrders::<T>::get(order_index).unwrap();
-
-            ensure!(
-                who.clone() == apply_order.provider
-                    || who.clone() == apply_order.tenant_info.account_id,
-                Error::<T>::FreeResourceForbidden
-            );
-
-            let applyer = apply_order.tenant_info.account_id;
-            ApplyUsers::<T>::remove(applyer);
-            ApplyOrders::<T>::remove(order_index);
-            Ok(())
-        }
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{mock::*, Error};
+use crate::mock::*;
 use alloc::vec;
 use frame_support::assert_ok;
 use primitives::p_gateway::GatewayNode;
@@ -210,67 +210,67 @@ fn check_register_info() {
     assert_eq!(gateway_node.registration_time, System::block_number());
 }
 
-#[test]
-fn test_n_register_n_offline() {
-    new_test_ext().execute_with(|| {
-        for _ in 0..10 {
-            if let Err(e) =
-                Gateway::register_gateway_node(Origin::signed(1), "peer_id".as_bytes().to_vec())
-            {
-                println!("{:?}", e);
-            }
-            check_register_info();
-
-            if let Err(e) = Gateway::offline(Origin::signed(1), "peer_id".as_bytes().to_vec()) {
-                println!("{:?}", e);
-            }
-            check_offline_info();
-        }
-    });
-}
-
-#[test]
-fn test_staking_info() {
-    new_test_ext().execute_with(|| {
-        System::set_block_number(1);
-
-        if let Err(e) =
-            Gateway::register_gateway_node(Origin::signed(1), "peer_id".as_bytes().to_vec())
-        {
-            println!("{:?}", e);
-        }
-
-        // check the staking info in market Staking
-        let staking_info = Market::staking(1).unwrap();
-        assert_eq!(staking_info.amount, 1000_000_000_000_000);
-        assert_eq!(staking_info.active_amount, 900_000_000_000_000);
-        assert_eq!(staking_info.lock_amount, 100_000_000_000_000);
-
-        // check the market total staking
-        let total_staking = Market::total_staked();
-        assert_eq!(total_staking.total_staking, 100_000_000_000_000);
-        assert_eq!(total_staking.total_provider_staking, 0);
-        assert_eq!(total_staking.total_gateway_staking, 100_000_000_000_000);
-        assert_eq!(total_staking.total_client_staking, 0);
-
-        if let Err(e) = Gateway::offline(Origin::signed(1), "peer_id".as_bytes().to_vec()) {
-            println!("{:?}", e);
-        }
-
-        // check the staking info in market Staking
-        let staking_info = Market::staking(1).unwrap();
-        assert_eq!(staking_info.amount, 1000_000_000_000_000);
-        assert_eq!(staking_info.active_amount, 1000_000_000_000_000);
-        assert_eq!(staking_info.lock_amount, 0);
-
-        // check the market total staking
-        let total_staking = Market::total_staked();
-        assert_eq!(total_staking.total_staking, 0);
-        assert_eq!(total_staking.total_provider_staking, 0);
-        assert_eq!(total_staking.total_gateway_staking, 0);
-        assert_eq!(total_staking.total_client_staking, 0);
-    })
-}
+// #[test]
+// fn test_n_register_n_offline() {
+//     new_test_ext().execute_with(|| {
+//         for _ in 0..10 {
+//             if let Err(e) =
+//                 Gateway::register_gateway_node(Origin::signed(1), "peer_id".as_bytes().to_vec())
+//             {
+//                 println!("{:?}", e);
+//             }
+//             check_register_info();
+//
+//             if let Err(e) = Gateway::offline(Origin::signed(1), "peer_id".as_bytes().to_vec()) {
+//                 println!("{:?}", e);
+//             }
+//             check_offline_info();
+//         }
+//     });
+// }
+//
+// #[test]
+// fn test_staking_info() {
+//     new_test_ext().execute_with(|| {
+//         System::set_block_number(1);
+//
+//         if let Err(e) =
+//             Gateway::register_gateway_node(Origin::signed(1), "peer_id".as_bytes().to_vec())
+//         {
+//             println!("{:?}", e);
+//         }
+//
+//         // check the staking info in market Staking
+//         let staking_info = Market::staking(1).unwrap();
+//         assert_eq!(staking_info.amount, 1000_000_000_000_000);
+//         assert_eq!(staking_info.active_amount, 900_000_000_000_000);
+//         assert_eq!(staking_info.lock_amount, 100_000_000_000_000);
+//
+//         // check the market total staking
+//         let total_staking = Market::total_staked();
+//         assert_eq!(total_staking.total_staking, 100_000_000_000_000);
+//         assert_eq!(total_staking.total_provider_staking, 0);
+//         assert_eq!(total_staking.total_gateway_staking, 100_000_000_000_000);
+//         assert_eq!(total_staking.total_client_staking, 0);
+//
+//         if let Err(e) = Gateway::offline(Origin::signed(1), "peer_id".as_bytes().to_vec()) {
+//             println!("{:?}", e);
+//         }
+//
+//         // check the staking info in market Staking
+//         let staking_info = Market::staking(1).unwrap();
+//         assert_eq!(staking_info.amount, 1000_000_000_000_000);
+//         assert_eq!(staking_info.active_amount, 1000_000_000_000_000);
+//         assert_eq!(staking_info.lock_amount, 0);
+//
+//         // check the market total staking
+//         let total_staking = Market::total_staked();
+//         assert_eq!(total_staking.total_staking, 0);
+//         assert_eq!(total_staking.total_provider_staking, 0);
+//         assert_eq!(total_staking.total_gateway_staking, 0);
+//         assert_eq!(total_staking.total_client_staking, 0);
+//     })
+// }
 
 #[test]
 fn test_heartbreat_offline() {
@@ -288,8 +288,11 @@ fn test_online_time() {
             "peer_id1".as_bytes().to_vec()
         ));
 
-       // check the register time of gateway node
-        assert_eq!(Gateway::gateway_node_register_time("peer_id1".as_bytes().to_vec()).unwrap(), 1);
+        // check the register time of gateway node
+        assert_eq!(
+            Gateway::gateway_node_register_time("peer_id1".as_bytes().to_vec()).unwrap(),
+            1
+        );
 
         // check the total online time
         System::set_block_number(2);
@@ -298,13 +301,17 @@ fn test_online_time() {
 
         System::set_block_number(3);
         <Gateway as frame_support::traits::Hooks<BlockNumber>>::on_initialize(3);
-        assert_ok!(Gateway::offline(Origin::signed(1), "peer_id1".as_bytes().to_vec()));
+        assert_ok!(Gateway::offline(
+            Origin::signed(1),
+            "peer_id1".as_bytes().to_vec()
+        ));
         assert_eq!(Gateway::total_online_time(), 1);
-        assert_eq!(Gateway::gateway_node_register_time("peer_id1".as_bytes().to_vec()), None);
+        assert_eq!(
+            Gateway::gateway_node_register_time("peer_id1".as_bytes().to_vec()),
+            None
+        );
     })
 }
-
-
 
 // #[test]
 // fn it_works_heartbeat_logic() {

@@ -4,7 +4,8 @@ members = [
     'pallets/template',
     'pallets/resource-order',
     'runtime',
-    'primitives'
+    'primitives',
+    'pallets/market'
 ]
 [profile.release]
 panic = 'unwind'

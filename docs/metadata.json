@@ -41,5 +41,45 @@
     "total_provider_staking": "u128",
     "total_gateway_staking": "u128",
     "total_client_staking": "u128"
+  },
+
+  "ComputingResource": {
+    "index": "u128",
+    "account_id": "AccountId",
+    "peer_id": "Vec<u8>",
+    "config": "ResourceConfig",
+    "rental_statistics": "ResourceRentalStatistics",
+    "rental_info": "ResourceRentalInfo<u32>",
+    "status": "ResourceStatus"
+  },
+
+  "ResourceConfig": {
+    "cpu": "u64",
+    "memory": "u64",
+    "system": "Vec<u8>",
+    "cpu_model": "Vec<u8>"
+  },
+
+  "ResourceRentalStatistics": {
+    "rental_count":"u32",
+    "rental_duration": "u32",
+    "fault_count": "u32",
+    "fault_duration": "u32"
+  },
+
+  "ResourceRentalInfo<u32>": {
+    "rent_unit_price": "u128",
+    "rent_duration": "u32",
+    "end_of_rent": "u32"
+  },
+
+  "ResourceStatus": {
+    "_enum": [
+      "Inuse",
+      "Locked",
+      "Unused",
+      "offline"
+    ]
   }
+
 }

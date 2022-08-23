@@ -631,6 +631,7 @@ pub mod pallet {
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn change_resource_status(account_id: OriginFor<T>, index: u64) -> DispatchResult {
             let who = ensure_signed(account_id)?;
+
             ensure!(
                 Resources::<T>::contains_key(index),
                 Error::<T>::ResourceNotFound

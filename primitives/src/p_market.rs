@@ -200,4 +200,6 @@ pub trait MarketInterface<AccountId> {
     fn provider_staking_fee() -> u128;
 
     fn client_staking_fee() -> u128;
+
+    fn change_staking_for_benchmarking(who: AccountId);
 }
