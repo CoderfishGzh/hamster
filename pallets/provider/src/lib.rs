@@ -648,6 +648,22 @@ pub mod pallet {
             );
             resource.status = ResourceStatus::Unused;
 
+            // relock amount
+            let staking_amount = Self::compute_provider_staked_amount(
+                resource.config.cpu,
+                resource.config.memory,
+            );
+
+            ensure!(
+                T::MarketInterface::change_stake_amount(
+                    who.clone(),
+                    ChangeAmountType::Lock,
+                    T::BalanceToNumber::convert(staking_amount),
+                    MarketUserStatus::Provider,
+                ),
+                Error::<T>::LockAmountFailed,
+            );
+
             Self::update_computing_resource(index, resource).ok();
 
             Ok(())
