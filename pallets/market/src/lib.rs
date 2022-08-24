@@ -781,8 +781,8 @@ impl<T: Config> MarketInterface<<T as frame_system::Config>::AccountId> for Pall
     // change the user staking info, only used by benchmarking 
     fn change_staking_for_benchmarking(who: T::AccountId) {
         let staking_amount = primitives::p_market::StakingAmount {
-            amount: 200_000_000_000_000,
-            active_amount: 200_000_000_000_000,
+            amount: 400_000_000_000_000,
+            active_amount: 400_000_000_000_000,
             lock_amount: 0,
         };
         

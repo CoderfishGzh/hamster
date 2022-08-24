@@ -3,21 +3,57 @@
 use super::*;
 
 #[allow(unused)]
-use crate::Pallet as Template;
+use crate::Pallet as ResourceOrder;
 use frame_benchmarking::vec;
 use frame_benchmarking::{benchmarks, impl_benchmark_test_suite, whitelisted_caller};
 use frame_system::RawOrigin;
 use sp_core::Bytes;
+use testing_utils::*;
+const USER_SEED: u32 = 999666;
 
 benchmarks! {
     create_order_info {
-        let caller: T::AccountId = whitelisted_caller();
+        let user = create_provider_resource::<T>(USER_SEED, 100);
+        let resource_index = 0;
+        let rent_duration = 1;
+        let public_key = Bytes(vec![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27, 28, 29, 30,
+        ]);
+    }: _(RawOrigin::Signed(user.clone()), resource_index, rent_duration, public_key)
+    verify {
+        assert!(OrderIndex::<T>::get() == 1);
+    }
 
-        let resource_index:u64 = 0;
-        let rent_duration:u32 = 100;
-        let public_key = Bytes(vec![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]);
-    }: _(RawOrigin::Signed(caller), resource_index,rent_duration,public_key)
+    // order_exec {
+    //
+    // }: _()
+    // verify {
+    //
+    // }
+    //
+    // heartbeat {
+    //
+    // }: _()
+    // verify {
+    //
+    // }
+    //
+    // cancel_order {
+    //
+    // }: _()
+    // verify {
+    //
+    // }
+    //
+    // renew_agreement {
+    //
+    // }: _()
+    // verify {
+    //
+    // }
 
 }
 
-impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test,);
+impl_benchmark_test_suite!(ResourceOrder, crate::mock::new_test_ext(), crate::mock::Test,);
+

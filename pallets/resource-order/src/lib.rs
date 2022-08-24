@@ -30,6 +30,7 @@ mod tests;
 
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
+mod testing_utils;
 
 type BalanceOf<T> =
     <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -55,6 +56,9 @@ pub mod pallet {
 
         /// Market interface
         type MarketInterface: MarketInterface<Self::AccountId>;
+        
+        /// Provider interface 
+        type ProviderInterface: ProviderInterface<Self::AccountId>;
 
         /// block height to number
         type BlockNumberToNumber: Convert<Self::BlockNumber, u128> + Convert<u32, Self::BlockNumber>;
@@ -848,6 +852,9 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
+    pub fn change_staking_for_benchmarking(who: T::AccountId) {
+        T::MarketInterface::change_staking_for_benchmarking(who);
+    }
     // associate user and protocol number
     pub fn do_insert_user_agreements(who: T::AccountId, agreement_count: u64) {
         // detects the existence of a user s protocol

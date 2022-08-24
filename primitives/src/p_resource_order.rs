@@ -1,5 +1,7 @@
 use codec::{Decode, Encode};
 use frame_support::Parameter;
+use frame_system::Origin;
+use frame_system::pallet_prelude::OriginFor;
 
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
@@ -333,6 +335,7 @@ pub trait OrderInterface {
         index: u64,
         resource_info: ComputingResource<Self::BlockNumber, Self::AccountId>,
     );
+    
 }
 
 /// resourceOrder

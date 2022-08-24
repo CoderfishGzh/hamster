@@ -166,8 +166,6 @@ tag = 'monthly-2021-07'
 version = '3.0.0'
 
 
-
-
 [dependencies.sp-finality-grandpa]
 git = 'https://gitee.com/mohaijiang/substrate.git'
 tag = 'monthly-2021-07'
@@ -262,11 +260,6 @@ version = '3.0.0'
 git = 'https://gitee.com/mohaijiang/substrate.git'
 tag = 'monthly-2021-07'
 version = '0.9.0'
-
-# [dependencies.pallet-staking]
-# git = 'https://gitee.com/mohaijiang/substrate.git'
-# tag = 'monthly-2021-07'
-# version = '3.0.0'
 
 [dependencies.pallet-staking]
 default-features = false

@@ -21,6 +21,7 @@ mod mock;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 mod testing_utils;
+mod weights;
 
 type BalanceOf<T> =
     <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -769,4 +770,94 @@ impl<T: Config> ProviderInterface<<T as frame_system::Config>::AccountId> for Pa
             ResourceCount::<T>::get() as u128,
         )
     }
+
+    fn create_resource_by_benchmarking(who: T::AccountId) {
+        let index = ResourceIndex::<T>::get();
+        let cpu = 1;
+        let memory = 1;
+        let peer_id = "peer_id_1".as_bytes().to_vec();
+        let system = "linux".as_bytes().to_vec();
+        let cpu_model = "a7".as_bytes().to_vec();
+        let price = T::NumberToBalance::convert(1_000_000_000_000);
+        let rent_duration_hour = 2 as u32;
+        let staking_amount = T::NumberToBalance::convert(200_000_000_000_000);
+
+        T::MarketInterface::change_stake_amount(
+            who.clone(),
+            ChangeAmountType::Lock,
+            T::BalanceToNumber::convert(staking_amount),
+            MarketUserStatus::Provider,
+        );
+
+        let mut provider_online_list = ProviderOnlineList::<T>::get();
+        if let Err(index) = provider_online_list.binary_search(&who) {
+            provider_online_list.insert(index, who.clone());
+        }
+        ProviderOnlineList::<T>::set(provider_online_list);
+
+        Self::update_provider_points(who.clone(), cpu, memory);
+
+        let resource_config = ResourceConfig::new(
+            cpu.clone(),
+            memory.clone(),
+            system.clone(),
+            cpu_model.clone(),
+        );
+
+        let statistics = ResourceRentalStatistics::new(0, 0, 0, 0);
+
+        let block_number = <frame_system::Pallet<T>>::block_number();
+        // calculate persistent blocks
+        let rent_blocks = TryInto::<T::BlockNumber>::try_into(&rent_duration_hour * 600)
+            .ok()
+            .unwrap();
+        // the block number at which the calculation ends
+        let end_of_block = block_number + rent_blocks;
+        // create the resource rental information
+        let resource_rental_info = ResourceRentalInfo::new(
+            T::BalanceToNumber::convert(price.clone()),
+            rent_blocks,
+            end_of_block,
+        );
+        // create the computing resource: include all the info(resource, statistics, rental_info, and source status)
+        let computing_resource = ComputingResource::new(
+            index,
+            who.clone(),
+            peer_id.clone(),
+            resource_config,
+            statistics,
+            resource_rental_info,
+            ResourceStatus::Unused,
+        );
+
+        //Associate the block number and the resource id to expire
+        if !FutureExpiredResource::<T>::contains_key(end_of_block) {
+            // init
+            let vec: Vec<u64> = Vec::new();
+            FutureExpiredResource::<T>::insert(end_of_block, vec);
+        }
+
+        let mut expired_resource = FutureExpiredResource::<T>::get(end_of_block).unwrap();
+
+        expired_resource.push(index);
+        FutureExpiredResource::<T>::insert(end_of_block, expired_resource);
+        // increase resources
+        Resources::<T>::insert(index, computing_resource.clone());
+        // increase the total
+        let count = ResourceCount::<T>::get();
+        ResourceCount::<T>::set(count + 1);
+        // index auto increment
+        ResourceIndex::<T>::set(index + 1);
+        // update publisher associated resource
+        if !Providers::<T>::contains_key(who.clone()) {
+            // Initialize
+            let vec: Vec<u64> = Vec::new();
+            Providers::<T>::insert(who.clone(), vec);
+        }
+        let mut resources = Providers::<T>::get(who.clone()).unwrap();
+        resources.push(index);
+        Providers::<T>::insert(who.clone(), resources);
+
+    }
+
 }

@@ -222,4 +222,6 @@ impl<BlockNumber> ResourceRentalInfo<BlockNumber> {
 
 pub trait ProviderInterface<AccountId> {
     fn get_providers_points() -> (Vec<(AccountId, ProviderPoints)>, u128, u128);
+    fn create_resource_by_benchmarking(who: AccountId);
+
 }

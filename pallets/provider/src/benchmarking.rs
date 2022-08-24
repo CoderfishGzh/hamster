@@ -31,19 +31,22 @@ benchmarks! {
         assert!(ResourceIndex::<T>::get() == 1);
     }
 
-    // offline {
-    //
-    // }: _()
-    // verify {
-    //
-    // }
-    //
-    // change_resource_status {
-    //
-    // }: _()
-    // verify {
-    //
-    // }
+    offline {
+       let user = create_provider_resource::<T>(USER_SEED, 100);
+    }: _(RawOrigin::Signed(user), 0)
+    verify {
+        assert!(ResourceCount::<T>::get() == 0)
+    }
+
+    change_resource_status {
+        let user = create_offline_provider_resource::<T>(USER_SEED, 100);
+    }: _(RawOrigin::Signed(user), 0)
+    verify {
+        assert!(
+            Resources::<T>::get(0).unwrap().status
+            ==
+            primitives::p_provider::ResourceStatus::Unused);
+    }
 
 }
 

@@ -605,6 +605,7 @@ impl pallet_resource_order::Config for Runtime {
     type HealthCheckInterval = HealthCheckInterval;
     type UnixTime = Timestamp;
     type MarketInterface = Market;
+    type ProviderInterface = Provider;
 }
 
 impl pallet_provider::Config for Runtime {
@@ -864,7 +865,7 @@ impl_runtime_apis! {
             add_benchmark!(params, batches, pallet_balances, Balances);
             add_benchmark!(params, batches, pallet_timestamp, Timestamp);
             add_benchmark!(params, batches, pallet_template, TemplateModule);
-            //add_benchmark!(params, batches, pallet_resource_order, ResourceOrder);
+            add_benchmark!(params, batches, pallet_resource_order, ResourceOrder);
             //add_benchmark!(params, batches, pallet_gateway, Gateway);
             // add_benchmark!(params, batches, pallet_market, Market);
             // add_benchmark!(params, batches, pallet_gateway, Gateway);
