@@ -18,8 +18,9 @@ pub use primitives::{p_market::*, p_provider::*, p_resource_order::*, EraIndex};
 #[cfg(test)]
 mod mock;
 
-#[cfg(test)]
-mod tests;
+#[cfg(feature = "runtime-benchmarks")]
+mod benchmarking;
+mod testing_utils;
 
 type BalanceOf<T> =
     <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -672,6 +673,10 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
+    pub fn change_staking_for_benchmarking(who: T::AccountId) {
+        T::MarketInterface::change_staking_for_benchmarking(who);
+    }
+
     ///
     fn sub_provider_points(who: T::AccountId, cpu: u64, memory: u64) {
         // 1. get the provider points

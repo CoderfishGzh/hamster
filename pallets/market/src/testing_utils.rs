@@ -13,7 +13,7 @@ pub fn create_funded_user<T: Config> (
 ) -> T::AccountId {
     let user = account(string, n, SEED);
     let balance = T::Currency::minimum_balance() * balance_factor.into();
-    T::Currency::make_free_balance_be(&user, balance);
+    T::Currency::make_free_balance_be(&user, balance.clone());
     T::Currency::issue(balance);
     user
 }

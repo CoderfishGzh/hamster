@@ -8,9 +8,11 @@ mod mock;
 #[cfg(test)]
 mod tests;
 
-#[cfg(feature = "runtime-benchmarks")]
-mod benchmarking;
+#[cfg(any(feature = "runtime-benchmarks", test))]
 mod testing_utils;
+
+#[cfg(any(feature = "runtime-benchmarks", test))]
+pub mod benchmarking;
 
 use frame_support::sp_runtime::traits::Convert;
 

@@ -27,9 +27,9 @@ runtime-benchmarks = [
     'pallet-timestamp/runtime-benchmarks',
     'pallet-resource-order/runtime-benchmarks',
     'sp-runtime/runtime-benchmarks',
-    'pallet-market/runtime-benchmarks',
-    'pallet-gateway/runtime-benchmarks',
-
+#    'pallet-market/runtime-benchmarks',
+#    'pallet-gateway/runtime-benchmarks',
+    'pallet-provider/runtime-benchmarks',
 ]
 std = [
     "sp-authority-discovery/std",
@@ -258,12 +258,6 @@ default-features = false
 git = 'https://gitee.com/mohaijiang/substrate.git'
 tag = 'monthly-2021-07'
 version = '3.0.0'
-
-# [dependencies.pallet-staking]
-# default-features = false
-# git = 'https://gitee.com/mohaijiang/substrate.git'
-# tag = 'monthly-2021-07'
-# version = '3.0.0'
 
 [dependencies.pallet-staking]
 default-features = false

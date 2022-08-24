@@ -1,8 +1,7 @@
-use crate::Pallet as Gateway;
+use crate::Pallet as Provider;
 use crate::*;
 use frame_benchmarking::account;
 const SEED: u32 = 0;
-
 
 /// Grab a funded user
 pub fn create_funded_user<T: Config> (
@@ -24,10 +23,6 @@ pub fn create_staking_account<T: Config> (
     balance_factor: u32,
 ) -> T::AccountId {
     let user = create_funded_user::<T>("user", n, balance_factor);
-    let amount = T::NumberToBalance::convert(200_000_000_000_000);
-    Gateway::<T>::change_staking_for_benchmarking(user.clone());
+    Provider::<T>::change_staking_for_benchmarking(user.clone());
     user
 }
-
-
-

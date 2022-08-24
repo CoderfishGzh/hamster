@@ -866,9 +866,9 @@ impl_runtime_apis! {
             add_benchmark!(params, batches, pallet_template, TemplateModule);
             //add_benchmark!(params, batches, pallet_resource_order, ResourceOrder);
             //add_benchmark!(params, batches, pallet_gateway, Gateway);
-            add_benchmark!(params, batches, pallet_market, Market);
-            add_benchmark!(params, batches, pallet_gateway, Gateway);
-
+            // add_benchmark!(params, batches, pallet_market, Market);
+            // add_benchmark!(params, batches, pallet_gateway, Gateway);
+            // add_benchmark!(params, batches, pallet_provider, Provider);
             if batches.is_empty() { return Err("Benchmark not found for this pallet.".into()) }
             Ok(batches)
         }

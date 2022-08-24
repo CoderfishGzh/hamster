@@ -5,7 +5,7 @@ extern crate alloc;
 use frame_support::sp_runtime::traits::Convert;
 use frame_support::traits::UnixTime;
 use frame_support::transactional;
-use frame_support::{dispatch::DispatchResult, pallet_prelude::*, traits::Currency, PalletId};
+use frame_support::{dispatch::DispatchResult, pallet_prelude::*, traits::Currency};
 use frame_system::pallet_prelude::*;
 use sp_core::Bytes;
 use sp_runtime::traits::Zero;

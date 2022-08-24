@@ -788,6 +788,8 @@ impl<T: Config> MarketInterface<<T as frame_system::Config>::AccountId> for Pall
         
        Staking::<T>::insert(who.clone(), staking_amount);
     }
+    
+    
 }
 
 impl<T: Config> ForChunkCycle for Pallet<T> {
