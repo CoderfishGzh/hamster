@@ -779,7 +779,7 @@ impl<T: Config> ProviderInterface<<T as frame_system::Config>::AccountId> for Pa
         let system = "linux".as_bytes().to_vec();
         let cpu_model = "a7".as_bytes().to_vec();
         let price = T::NumberToBalance::convert(1_000_000_000_000);
-        let rent_duration_hour = 2 as u32;
+        let rent_duration_hour = 3 as u32;
         let staking_amount = T::NumberToBalance::convert(200_000_000_000_000);
 
         T::MarketInterface::change_stake_amount(
