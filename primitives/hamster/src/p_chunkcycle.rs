@@ -3,7 +3,7 @@ use crate::p_resource_order::RentalAgreement;
 use codec::{Decode, Encode};
 use frame_support::Parameter;
 use sp_debug_derive::RuntimeDebug;
-use sp_runtime::traits::AtLeast32BitUnsigned;
+use frame_support::sp_runtime::traits::AtLeast32BitUnsigned;
 use sp_std::vec::Vec;
 
 pub trait ForChunkCycle {

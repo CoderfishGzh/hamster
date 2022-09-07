@@ -3,7 +3,7 @@ use frame_support::Parameter;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 use sp_debug_derive::RuntimeDebug;
-use sp_runtime::traits::AtLeast32BitUnsigned;
+use frame_support::sp_runtime::traits::AtLeast32BitUnsigned;
 use sp_std::vec::Vec;
 
 /// Gateway node

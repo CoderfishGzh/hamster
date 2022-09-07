@@ -16,7 +16,6 @@
 // limitations under the License.
 
 //! I/O host interface for substrate runtime.
-
 #![warn(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]

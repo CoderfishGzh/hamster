@@ -1576,11 +1576,16 @@ impl pallet_alliance::Config for Runtime {
 	type MaxAllies = MaxAllies;
 	type MaxUnscrupulousItems = ConstU32<100>;
 	type MaxWebsiteUrlLength = ConstU32<255>;
+	type AllyDeposit = AllyDeposit;
 	type MaxAnnouncementsCount = ConstU32<100>;
 	type MaxMembersCount = AllianceMaxMembers;
-	type AllyDeposit = AllyDeposit;
 	type WeightInfo = pallet_alliance::weights::SubstrateWeight<Runtime>;
 	type RetirementPeriod = RetirementPeriod;
+}
+
+impl pallet_burn::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
 }
 
 construct_runtime!(
@@ -1645,6 +1650,7 @@ construct_runtime!(
 		NominationPools: pallet_nomination_pools,
 		RankedPolls: pallet_referenda::<Instance2>,
 		RankedCollective: pallet_ranked_collective,
+		HBurn: pallet_burn,
 	}
 );
 
