@@ -7,7 +7,6 @@ use frame_support::traits::UnixTime;
 use frame_support::transactional;
 use frame_support::{dispatch::DispatchResult, pallet_prelude::*, traits::Currency};
 use frame_system::pallet_prelude::*;
-use sp_core::Bytes;
 use sp_runtime::traits::Zero;
 use sp_std::convert::TryInto;
 use sp_std::vec::Vec;
@@ -16,7 +15,7 @@ use sp_std::vec::Vec;
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://substrate.dev/docs/en/knowledgebase/runtime/frame>
 pub use pallet::*;
-// pub use pallet_market::MarketInterface;
+
 pub use sp_hamster::p_market::MarketUserStatus;
 pub use sp_hamster::p_market::*;
 pub use sp_hamster::p_provider::*;
@@ -56,8 +55,8 @@ pub mod pallet {
 			BlockNumber = Self::BlockNumber,
 		>;
 
-		// /// Market interface
-		// type MarketInterface: MarketInterface<Self::AccountId>;
+		/// Market interface
+		type MarketInterface: MarketInterface<Self::AccountId>;
 
 		/// block height to number
 		type BlockNumberToNumber: Convert<Self::BlockNumber, u128> + Convert<u32, Self::BlockNumber>;
@@ -273,22 +272,22 @@ pub mod pallet {
 
 	#[pallet::hooks]
 	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
-		// fn on_initialize(now: T::BlockNumber) -> Weight {
-		// 	// check for expired agreements
-		// 	Self::agreement_check(now);
-		//
-		// 	// health examination
-		// 	if (now % T::HealthCheckInterval::get()).is_zero() {
-		// 		Self::do_health_check(now).ok();
-		// 	}
-		//
-		// 	0
-		// }
-		//
-		// fn on_finalize(now: BlockNumberFor<T>) {
-		// 	// delete
-		// 	BlockWithAgreement::<T>::remove(now);
-		// }
+		fn on_initialize(now: T::BlockNumber) -> Weight {
+			// check for expired agreements
+			Self::agreement_check(now);
+
+			// health examination
+			if (now % T::HealthCheckInterval::get()).is_zero() {
+				Self::do_health_check(now).ok();
+			}
+
+			T::DbWeight::get().reads_writes(1, 1)
+		}
+
+		fn on_finalize(now: BlockNumberFor<T>) {
+			// delete
+			BlockWithAgreement::<T>::remove(now);
+		}
 	}
 
 	// Errors inform users that something went wrong.
@@ -362,10 +361,10 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 
 			// check user has staking
-			// ensure!(
-            //     T::MarketInterface::staking_exit(who.clone()),
-            //     Error::<T>::StakingNotExist
-            // );
+			ensure!(
+                T::MarketInterface::staking_exit(who.clone()),
+                Error::<T>::StakingNotExist
+            );
 
 			// get resource information
 			let mut resource_info =
@@ -437,10 +436,10 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 
 			// check user has staking
-			// ensure!(
-            //     T::MarketInterface::staking_exit(who.clone()),
-            //     Error::<T>::StakingNotExist
-            // );
+			ensure!(
+                T::MarketInterface::staking_exit(who.clone()),
+                Error::<T>::StakingNotExist
+            );
 
 			// check if an order exists
 			ensure!(
@@ -457,15 +456,15 @@ pub mod pallet {
             );
 
 			// lock the user staking
-			// ensure!(
-            //     T::MarketInterface::change_stake_amount(
-            //         order.tenant_info.account_id.clone(),
-            //         ChangeAmountType::Lock,
-            //         T::MarketInterface::client_staking_fee(),
-            //         MarketUserStatus::Client,
-            //     ),
-            //     Error::<T>::LockAmountFailed,
-            // );
+			ensure!(
+                T::MarketInterface::change_stake_amount(
+                    order.tenant_info.account_id.clone(),
+                    ChangeAmountType::Lock,
+                    T::MarketInterface::client_staking_fee(),
+                    MarketUserStatus::Client,
+                ),
+                Error::<T>::LockAmountFailed,
+            );
 
 			// get resource information
 			let mut resource_info =
@@ -880,12 +879,12 @@ impl<T: Config> Pallet<T> {
 		// delete agreement
 		RentalAgreements::<T>::remove(agreement_index);
 		// unlock the user staking
-		// T::MarketInterface::change_stake_amount(
-		// 	user.clone(),
-		// 	ChangeAmountType::Unlock,
-		// 	T::MarketInterface::client_staking_fee(),
-		// 	MarketUserStatus::Client,
-		// );
+		T::MarketInterface::change_stake_amount(
+			user.clone(),
+			ChangeAmountType::Unlock,
+			T::MarketInterface::client_staking_fee(),
+			MarketUserStatus::Client,
+		);
 	}
 
 	// delete the protocol corresponding to the block
@@ -907,74 +906,74 @@ impl<T: Config> Pallet<T> {
 	}
 
 	// health examination
-	// pub fn do_health_check(now: T::BlockNumber) -> DispatchResult {
-	// 	// get a list of protocols
-	// 	let agreements = RentalAgreements::<T>::iter();
-	//
-	// 	for (i, mut agreement) in agreements {
-	// 		if agreement.status == AgreementStatus::Using {
-	// 			// get resource number
-	// 			let resource_index = agreement.resource_index;
-	// 			// get resource information
-	// 			let mut resource =
-	// 				match T::OrderInterface::get_computing_resource_info(resource_index) {
-	// 					Some(x) => x,
-	// 					None => Err(Error::<T>::ResourceNotExist)?,
-	// 				};
-	//
-	// 			// get the interval from the last report
-	// 			let duration = now - agreement.calculation;
-	//
-	// 			// check whether the protocol reports a health check
-	// 			if duration > T::HealthCheckInterval::get() {
-	// 				// number of resource failures+1
-	// 				resource.rental_statistics.add_fault_count();
-	// 				// resource set to unused
-	// 				resource.update_status(ResourceStatus::Offline);
-	// 				// protocol is set to penalized
-	// 				agreement.change_status(AgreementStatus::Punished);
-	//
-	// 				// Delete the protocol number in the corresponding block
-	// 				Self::delete_block_with_agreement(i, agreement.end.clone());
-	//
-	// 				// compute the penalty
-	// 				let base_staking = T::MarketInterface::provider_staking_fee();
-	// 				let penalty = resource.config.cpu.saturating_mul(base_staking as u64)
-	// 					+ resource.config.memory.saturating_mul(base_staking as u64);
-	//
-	// 				ensure!(
-    //                     T::MarketInterface::change_stake_amount(
-    //                         resource.account_id.clone(),
-    //                         ChangeAmountType::Penalty,
-    //                         penalty as u128,
-    //                         MarketUserStatus::Provider,
-    //                     ),
-    //                     Error::<T>::PenaltyAmountFailed,
-    //                 );
-	//
-	// 				ensure!(
-    //                     T::MarketInterface::change_stake_amount(
-    //                         agreement.tenant_info.account_id.clone(),
-    //                         ChangeAmountType::Unlock,
-    //                         T::MarketInterface::client_staking_fee(),
-    //                         MarketUserStatus::Client,
-    //                     ),
-    //                     Error::<T>::UnlockAmountFailed,
-    //                 );
-	//
-	//
-	// 				// save the agreement
-	// 				RentalAgreements::<T>::insert(i, agreement);
-	// 				// save resources
-	// 				T::OrderInterface::update_computing_resource(resource_index, resource);
-	//
-	// 				Self::deposit_event(Event::PenaltyAgreementExcutionSuccess(i));
-	// 			}
-	// 		}
-	// 	}
-	//
-	// 	Ok(())
-	// }
+	pub fn do_health_check(now: T::BlockNumber) -> DispatchResult {
+		// get a list of protocols
+		let agreements = RentalAgreements::<T>::iter();
+
+		for (i, mut agreement) in agreements {
+			if agreement.status == AgreementStatus::Using {
+				// get resource number
+				let resource_index = agreement.resource_index;
+				// get resource information
+				let mut resource =
+					match T::OrderInterface::get_computing_resource_info(resource_index) {
+						Some(x) => x,
+						None => Err(Error::<T>::ResourceNotExist)?,
+					};
+
+				// get the interval from the last report
+				let duration = now - agreement.calculation;
+
+				// check whether the protocol reports a health check
+				if duration > T::HealthCheckInterval::get() {
+					// number of resource failures+1
+					resource.rental_statistics.add_fault_count();
+					// resource set to unused
+					resource.update_status(ResourceStatus::Offline);
+					// protocol is set to penalized
+					agreement.change_status(AgreementStatus::Punished);
+
+					// Delete the protocol number in the corresponding block
+					Self::delete_block_with_agreement(i, agreement.end.clone());
+
+					// compute the penalty
+					let base_staking = T::MarketInterface::provider_staking_fee();
+					let penalty = resource.config.cpu.saturating_mul(base_staking as u64)
+						+ resource.config.memory.saturating_mul(base_staking as u64);
+
+					ensure!(
+                        T::MarketInterface::change_stake_amount(
+                            resource.account_id.clone(),
+                            ChangeAmountType::Penalty,
+                            penalty as u128,
+                            MarketUserStatus::Provider,
+                        ),
+                        Error::<T>::PenaltyAmountFailed,
+                    );
+
+					ensure!(
+                        T::MarketInterface::change_stake_amount(
+                            agreement.tenant_info.account_id.clone(),
+                            ChangeAmountType::Unlock,
+                            T::MarketInterface::client_staking_fee(),
+                            MarketUserStatus::Client,
+                        ),
+                        Error::<T>::UnlockAmountFailed,
+                    );
+
+
+					// save the agreement
+					RentalAgreements::<T>::insert(i, agreement);
+					// save resources
+					T::OrderInterface::update_computing_resource(resource_index, resource);
+
+					Self::deposit_event(Event::PenaltyAgreementExcutionSuccess(i));
+				}
+			}
+		}
+
+		Ok(())
+	}
 
 	// check for expired agreements
 	pub fn agreement_check(now: T::BlockNumber) {
