@@ -26,6 +26,15 @@ sp-hamster = { version = "4.0.0-dev", default-features = false, path = "../../pr
 scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 log = { version = "0.4.17", default-features = false }
 
+[dev-dependencies]
+pallet-balances = { version = "4.0.0-dev", path = "../balances"}
+pallet-gateway = { version = "4.0.0-dev", path = "../gateway"}
+pallet-market = { version = "4.0.0-dev", path = "../market"}
+pallet-chunkcycle = { version = "4.0.0-dev", path = "../chunkcycle"}
+pallet-resource-order = { version = "4.0.0-dev", path = "../resource-order"}
+pallet-timestamp = { version = "4.0.0-dev", default-features = false, path = "../timestamp"}
+sp-io = { version = "6.0.0", default-features = false, path = "../../primitives/io" }
+
 [features]
 default = ["std"]
 std = [
@@ -39,5 +48,7 @@ std = [
 	'frame-benchmarking/std',
 	'log/std',
 ]
-
+runtime-benchmarks = [
+	"frame-benchmarking/runtime-benchmarks",
+]
 try-runtime = ["frame-support/try-runtime"]

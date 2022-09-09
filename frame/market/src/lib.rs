@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(test)]
+mod mock;
+
 use frame_support::sp_runtime::traits::Convert;
 use frame_support::{
 	dispatch::DispatchResult,
@@ -8,11 +11,14 @@ use frame_support::{
 	PalletId,
 	transactional
 };
+#[cfg(feature = "std")]
+use frame_support::traits::GenesisBuild;
 
 use frame_system::pallet_prelude::*;
 use sp_runtime::traits::AccountIdConversion;
 use sp_runtime::Perbill;
-
+// use sp_std::vec::Vec;
+use codec::alloc::vec;
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://substrate.dev/docs/en/knowledgebase/runtime/frame>
@@ -33,16 +39,17 @@ type BalanceOf<T> =
 const PALLET_ID: PalletId = PalletId(*b"ttchain!");
 pub const BALANCE_UNIT: u128 = 1_000_000_000_000; //10^12
 
-// #[cfg(test)]
-// mod mock;
-//
-// #[cfg(test)]
-// mod tests;
-//
-// #[cfg(feature = "runtime-benchmarks")]
-// mod benchmarking;
-// pub mod weights;
-// pub use weights::WeightInfo;
+#[cfg(test)]
+mod tests;
+
+
+pub mod weights;
+pub use weights::WeightInfo;
+
+#[cfg(feature = "runtime-benchmarks")]
+pub mod benchmarking;
+#[cfg(any(feature = "runtime-benchmarks", test))]
+pub mod testing_utils;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -51,7 +58,7 @@ pub mod pallet {
 	use sp_hamster::p_market;
 	use sp_hamster::p_provider::ProviderInterface;
 	use sp_runtime::traits::Saturating;
-	// use crate::WeightInfo;
+	use crate::WeightInfo;
 
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
@@ -86,7 +93,7 @@ pub mod pallet {
 		/// time
 		type UnixTime: UnixTime;
 
-		// type WeightInfo: WeightInfo;
+		type WeightInfo: WeightInfo;
 	}
 
 	#[pallet::pallet]
@@ -183,7 +190,7 @@ pub mod pallet {
 	#[cfg(feature = "std")]
 	impl<T: Config> Default for GenesisConfig<T> {
 		fn default() -> Self {
-			Self {
+			GenesisConfig {
 				staking: vec![],
 				gateway_base_fee: Default::default(),
 				market_base_multiplier: Default::default(),
@@ -208,6 +215,26 @@ pub mod pallet {
 			<TotalStaked<T>>::put(self.total_staked.clone());
 		}
 	}
+
+
+
+	// #[cfg(feature = "std")]
+	// impl<T: Config> GenesisConfig<T, > {
+	// 	/// Direct implementation of `GenesisBuild::build_storage`.
+	// 	///
+	// 	/// Kept in order not to break dependency.
+	// 	pub fn build_storage(&self) -> Result<sp_runtime::Storage, String> {
+	// 		<Self as GenesisBuild<T>>::build_storage(self)
+	// 	}
+	//
+	// 	/// Direct implementation of `GenesisBuild::assimilate_storage`.
+	// 	///
+	// 	/// Kept in order not to break dependency.
+	// 	pub fn assimilate_storage(&self, storage: &mut sp_runtime::Storage) -> Result<(), String> {
+	// 		<Self as GenesisBuild<T>>::assimilate_storage(self, storage)
+	// 	}
+	// }
+
 
 	// Pallets use events to inform users when important changes are made.
 	// https://substrate.dev/docs/en/knowledgebase/runtime/events
@@ -252,7 +279,7 @@ pub mod pallet {
 		/// Transfer amount from user to staking pot
 		/// Update the Staking
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::bond())]
 		pub fn bond(origin: OriginFor<T>, amount: BalanceOf<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
@@ -298,7 +325,7 @@ pub mod pallet {
 		}
 
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::withdraw())]
 		pub fn withdraw(origin: OriginFor<T>, amount: BalanceOf<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
@@ -335,7 +362,7 @@ pub mod pallet {
 		/// * Every user can run this function
 		/// * Get all the history reward to gateway whose has reward
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::payout_gateway_nodes())]
 		pub fn payout_gateway_nodes(origin: OriginFor<T>) -> DispatchResult {
 			// Just check the signed
 			ensure_signed(origin)?;
@@ -364,7 +391,7 @@ pub mod pallet {
 		/// * Every user can run this function
 		/// * Get all the history reward to client whose has reward
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::payout_client_nodes())]
 		pub fn payout_client_nodes(origin: OriginFor<T>) -> DispatchResult {
 			// Just check the signed
 			ensure_signed(origin)?;
@@ -393,7 +420,7 @@ pub mod pallet {
 		/// * Every user can run this function
 		/// * Get all the history reward to provider whose has reward
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::payout_provider_nodes())]
 		pub fn payout_provider_nodes(origin: OriginFor<T>) -> DispatchResult {
 			ensure_signed(origin)?;
 
@@ -799,6 +826,17 @@ impl<T: Config> MarketInterface<<T as frame_system::Config>::AccountId> for Pall
 
 	fn client_staking_fee() -> u128 {
 		T::BalanceToNumber::convert(ClientBaseFee::<T>::get())
+	}
+
+	// change the user staking info, only used by benchmarking
+	fn change_staking_for_benchmarking(who: T::AccountId) {
+		let staking_amount = sp_hamster::p_market::StakingAmount {
+			amount: 400_000_000_000_000,
+			active_amount: 400_000_000_000_000,
+			lock_amount: 0,
+		};
+
+		Staking::<T>::insert(who.clone(), staking_amount);
 	}
 }
 

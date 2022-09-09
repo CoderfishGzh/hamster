@@ -25,7 +25,8 @@ use kitchensink_runtime::{
 	BalancesConfig, Block, CouncilConfig, DemocracyConfig, ElectionsConfig, GrandpaConfig,
 	ImOnlineConfig, IndicesConfig, MaxNominations, NominationPoolsConfig, SessionConfig,
 	SessionKeys, SocietyConfig, StakerStatus, StakingConfig, SudoConfig, SystemConfig,
-	TechnicalCommitteeConfig,
+	TechnicalCommitteeConfig,GatewayConfig, ProviderConfig, ResourceOrderConfig,
+	MarketConfig, currency::TTC,
 };
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
@@ -370,6 +371,37 @@ pub fn testnet_genesis(
 			min_create_bond: 10 * DOLLARS,
 			min_join_bond: 1 * DOLLARS,
 			..Default::default()
+		},
+		gateway: GatewayConfig {
+			gateway: Default::default(),
+			gateway_node_count: Default::default(),
+			account_peer_map: Default::default(),
+			gateways: Default::default(),
+		},
+		provider: ProviderConfig {
+			resource: Default::default(),
+			resource_index: Default::default(),
+			resource_count: Default::default(),
+			future_expired_resource: Default::default(),
+			provider: Default::default(),
+		},
+		resource_order: ResourceOrderConfig {
+			order_index: Default::default(),
+			resource_orders: Default::default(),
+			agreement_index: Default::default(),
+			rental_agreements: Default::default(),
+			user_agreements: Default::default(),
+			provider_agreements: Default::default(),
+			block_agreement: Default::default(),
+			user_orders: Default::default(),
+		},
+		market: MarketConfig {
+			staking: vec![],
+			gateway_base_fee: 100 * TTC,
+			market_base_multiplier: (5, 3, 1),
+			provider_base_fee: 100 * TTC,
+			client_base_fee: 100 * TTC,
+			total_staked: Default::default(),
 		},
 	}
 }

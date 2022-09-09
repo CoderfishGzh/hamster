@@ -172,6 +172,19 @@ const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 /// We allow for 2 seconds of compute with a 6 second average block time.
 const MAXIMUM_BLOCK_WEIGHT: Weight = WEIGHT_PER_SECOND.saturating_mul(2);
 
+pub mod currency {
+	use super::Balance;
+	pub const TTC: Balance = 1_000_000_000_000; //10^12
+	pub const DOLLARS: Balance = TTC;
+	pub const CENTS: Balance = TTC / 100; //10^10
+	pub const MILLICENTS: Balance = CENTS / 1_000; //10^7
+
+	pub const MILLI: Balance = TTC / 1000; //10^9
+	pub const MICRO: Balance = MILLI / 1000; //10^6
+	pub const NANO: Balance = MICRO / 1000; //10^3
+	pub const PICO: Balance = 1; //1
+}
+
 parameter_types! {
 	pub const BlockHashCount: BlockNumber = 2400;
 	pub const Version: RuntimeVersion = VERSION;
@@ -569,6 +582,9 @@ impl pallet_staking::Config for Runtime {
 	type OnStakerSlash = NominationPools;
 	type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
 	type BenchmarkingConfig = StakingBenchmarkingConfig;
+	type MarketInterface = Market;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
 }
 
 parameter_types! {
@@ -1588,6 +1604,78 @@ impl pallet_burn::Config for Runtime {
 	type Currency = Balances;
 }
 
+parameter_types! {
+    // polling interval
+    pub const ResourceInterval: BlockNumber = 3 * HOURS;
+    // health check interval
+    pub const HealthCheckInterval: BlockNumber = 10 * MINUTES;
+    // gateway node timed removal interval
+    pub const GatewayNodeTimedRemovalInterval: BlockNumber = 30 * MINUTES;
+    //gateway node heartbeat reporting interval
+    pub const GatewayNodeHeartbeatInterval: BlockNumber = 10 * MINUTES;
+}
+
+impl pallet_gateway::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
+	type BlockNumberToNumber = ConvertInto;
+	type GatewayNodeTimedRemovalInterval = GatewayNodeTimedRemovalInterval;
+	type GatewayNodeHeartbeatInterval = GatewayNodeHeartbeatInterval;
+	type MarketInterface = Market;
+	type WeightInfo = pallet_gateway::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_provider::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type BalanceToNumber = ConvertInto;
+	type NumberToBalance = ConvertInto;
+	type ResourceInterval = ResourceInterval;
+	type MarketInterface = Market;
+	type WeightInfo = pallet_provider::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_resource_order::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type OrderInterface = Provider;
+	type BlockNumberToNumber = ConvertInto;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
+	type HealthCheckInterval = HealthCheckInterval;
+	type UnixTime = Timestamp;
+	type MarketInterface = Market;
+	type ProviderInterface = Provider;
+	type WeightInfo = pallet_resource_order::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_chunkcycle::Config for Runtime {
+	type Event = Event;
+	type ForChunkCycleInterface = Market;
+	type Currency = Balances;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
+	type BlockNumberToNumber = ConvertInto;
+	type MarketInterface = Market;
+	type GatewayInterface = Gateway;
+}
+
+impl pallet_market::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type GatewayInterface = Gateway;
+	type ProviderInterface = Provider;
+	type ChunkCycleInterface = Chunkcycle;
+	type ResourceOrderInterface = ResourceOrder;
+	type BlockNumberToNumber = ConvertInto;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
+	type UnixTime = Timestamp;
+	type WeightInfo = pallet_market::weights::SubstrateWeight<Runtime>;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -1651,6 +1739,11 @@ construct_runtime!(
 		RankedPolls: pallet_referenda::<Instance2>,
 		RankedCollective: pallet_ranked_collective,
 		HBurn: pallet_burn,
+		Gateway: pallet_gateway,
+		Provider: pallet_provider,
+		ResourceOrder: pallet_resource_order,
+		Chunkcycle: pallet_chunkcycle,
+		Market: pallet_market,
 	}
 );
 
@@ -1764,6 +1857,10 @@ mod benches {
 		[pallet_utility, Utility]
 		[pallet_vesting, Vesting]
 		[pallet_whitelist, Whitelist]
+		[pallet_gateway, Gateway]
+		[pallet_provider, Provider]
+		[pallet_market, Market]
+		[pallet_resource_order, ResourceOrder]
 	);
 }
 

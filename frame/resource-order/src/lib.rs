@@ -21,17 +21,20 @@ pub use sp_hamster::p_market::*;
 pub use sp_hamster::p_provider::*;
 pub use sp_hamster::p_resource_order::*;
 
-// #[cfg(test)]
-// mod mock;
-//
-// #[cfg(test)]
-// mod tests;
-//
-// pub mod weights;
-// pub use weights::WeightInfo;
-//
-// #[cfg(feature = "runtime-benchmarks")]
-// mod benchmarking;
+#[cfg(test)]
+mod mock;
+
+#[cfg(test)]
+mod tests;
+
+pub mod weights;
+pub use weights::WeightInfo;
+
+#[cfg(feature = "runtime-benchmarks")]
+pub mod benchmarking;
+#[cfg(any(feature = "runtime-benchmarks", test))]
+pub mod testing_utils;
+
 
 type BalanceOf<T> =
 <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -39,7 +42,7 @@ type BalanceOf<T> =
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
-	// use crate::WeightInfo;
+	use crate::WeightInfo;
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
@@ -73,7 +76,10 @@ pub mod pallet {
 		/// time
 		type UnixTime: UnixTime;
 
-		// type WeightInfo: WeightInfo;
+		/// Provider interface
+		type ProviderInterface: ProviderInterface<Self::AccountId>;
+
+		type WeightInfo: WeightInfo;
 	}
 
 	#[pallet::pallet]
@@ -350,7 +356,7 @@ pub mod pallet {
 		/// client use this func to create the order
 		/// [Resource number, lease duration (hours), public key]
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::create_order_info())]
 		pub fn create_order_info(
 			origin: OriginFor<T>,
 			resource_index: u64,
@@ -431,7 +437,7 @@ pub mod pallet {
 		/// order execution
 		/// Provider used this func to execute the order
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::order_exec())]
 		pub fn order_exec(origin: OriginFor<T>, order_index: u64) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
@@ -615,7 +621,7 @@ pub mod pallet {
 
 		/// protocol resource heartbeat report
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::heartbeat())]
 		pub fn heartbeat(origin: OriginFor<T>, agreement_index: u64) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
@@ -652,7 +658,7 @@ pub mod pallet {
 
 		/// cancel order
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::cancel_order())]
 		pub fn cancel_order(origin: OriginFor<T>, order_index: u64) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			// check if an order exists
@@ -721,7 +727,7 @@ pub mod pallet {
 
 		/// agreement renewal
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::renew_agreement())]
 		pub fn renew_agreement(
 			origin: OriginFor<T>,
 			agreement_index: u64,
@@ -791,6 +797,11 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
+
+	pub fn change_staking_for_benchmarking(who: T::AccountId) {
+		T::MarketInterface::change_staking_for_benchmarking(who);
+	}
+
 	// associate user and protocol number
 	pub fn do_insert_user_agreements(who: T::AccountId, agreement_count: u64) {
 		// detects the existence of a user s protocol

@@ -29,6 +29,15 @@ pallet-gateway = { version = "4.0.0-dev", default-features = false, path = "../g
 pallet-provider = { version = "4.0.0-dev", default-features = false, path = "../provider"}
 log = { version = "0.4.17", default-features = false }
 
+[dev-dependencies]
+pallet-balances = { version = "4.0.0-dev", path = "../balances"}
+pallet-provider = { version = "4.0.0-dev", path = "../provider"}
+pallet-gateway = { version = "4.0.0-dev", path = "../gateway"}
+pallet-chunkcycle = { version = "4.0.0-dev", path = "../chunkcycle"}
+pallet-resource-order = { version = "4.0.0-dev", path = "../resource-order"}
+pallet-timestamp = { version = "4.0.0-dev", default-features = false, path = "../timestamp"}
+sp-io = { version = "6.0.0", default-features = false, path = "../../primitives/io" }
+
 [features]
 default = ["std"]
 std = [
@@ -44,5 +53,7 @@ std = [
 	'pallet-gateway/std',
 	'pallet-provider/std',
 ]
-
+runtime-benchmarks = [
+	"frame-benchmarking/runtime-benchmarks",
+]
 try-runtime = ["frame-support/try-runtime"]

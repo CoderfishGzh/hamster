@@ -4,10 +4,11 @@ use frame_support::Parameter;
 use serde::{Deserialize, Serialize};
 use sp_debug_derive::RuntimeDebug;
 use frame_support::sp_runtime::traits::AtLeast32BitUnsigned;
-use sp_std::vec::Vec;
+use sp_std::prelude::*;
+use scale_info::TypeInfo;
 
 /// Gateway node
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct GatewayNode<BlockNumber, AccountId>
 	where

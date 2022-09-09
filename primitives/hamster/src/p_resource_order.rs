@@ -3,18 +3,18 @@ use frame_support::Parameter;
 
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
-use sp_core::Bytes;
 use sp_debug_derive::RuntimeDebug;
 use frame_support::sp_runtime::traits::AtLeast32BitUnsigned;
 use sp_std::convert::TryInto;
 use sp_std::vec::Vec;
-
+use scale_info::TypeInfo;
 use crate::p_provider::{ComputingResource, ResourceConfig, ResourceRentalInfo};
 use sp_core::sp_std::time::Duration;
 
 /// resourceOrder
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[scale_info(skip_type_params(Duration))]
 pub struct ResourceOrder<AccountId, BlockNumber> {
 	/// OrderIdIndex
 	pub index: u64,
@@ -29,7 +29,7 @@ pub struct ResourceOrder<AccountId, BlockNumber> {
 	/// RentalDuration
 	pub rent_duration: BlockNumber,
 	/// Timestamp
-	pub time: Duration,
+	pub time: u64,
 	/// OrderStatus
 	pub status: OrderStatus,
 	/// AgreementNumber
@@ -37,18 +37,20 @@ pub struct ResourceOrder<AccountId, BlockNumber> {
 }
 
 /// TenantInformation
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct TenantInfo<AccountId> {
 	/// TenantInformation
 	pub account_id: AccountId,
 	/// RenterPublicKey
-	pub public_key: Bytes,
+	// pub public_key: Bytes,
+	pub public_key: Vec<u8>,
 }
 
 /// LeaseAgreement
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[scale_info(skip_type_params(Duration))]
 pub struct RentalAgreement<AccountId, BlockNumber>
 	where
 		BlockNumber: Parameter + AtLeast32BitUnsigned,
@@ -78,13 +80,13 @@ pub struct RentalAgreement<AccountId, BlockNumber>
 	/// ComputingBlock
 	pub calculation: BlockNumber,
 	/// Timestamp
-	pub time: Duration,
+	pub time: u64,
 	/// Status
 	pub status: AgreementStatus,
 }
 
 /// StakingAmount
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct StakingAmount {
 	/// StakingAmount
@@ -95,7 +97,7 @@ pub struct StakingAmount {
 	pub lock_amount: u128,
 }
 
-#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, Copy, Clone)]
+#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, Copy, Clone, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum OrderStatus {
 	/// Pending
@@ -106,7 +108,7 @@ pub enum OrderStatus {
 	Canceled,
 }
 
-#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, Copy, Clone)]
+#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, Copy, Clone, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum AgreementStatus {
 	/// Using
@@ -133,7 +135,7 @@ impl<AccountId, BlockNumber> ResourceOrder<AccountId, BlockNumber> {
 			resource_index,
 			create,
 			rent_duration,
-			time,
+			time: time.as_secs(),
 			status: OrderStatus::Pending,
 			agreement_index: None,
 		}
@@ -155,7 +157,7 @@ impl<AccountId, BlockNumber> ResourceOrder<AccountId, BlockNumber> {
 			resource_index,
 			create,
 			rent_duration,
-			time,
+			time: time.as_secs(),
 			status: OrderStatus::Pending,
 			agreement_index,
 		}
@@ -212,7 +214,7 @@ impl<AccountId, BlockNumber> RentalAgreement<AccountId, BlockNumber>
 			start,
 			end,
 			calculation,
-			time,
+			time: time.as_secs(),
 			status: AgreementStatus::Using,
 		}
 	}
@@ -275,10 +277,10 @@ impl<AccountId, BlockNumber> RentalAgreement<AccountId, BlockNumber>
 }
 
 impl<AccountId> TenantInfo<AccountId> {
-	pub fn new(account_id: AccountId, public_key: Bytes) -> Self {
+	pub fn new(account_id: AccountId, public_key: Vec<u8>) -> Self {
 		TenantInfo {
 			account_id,
-			public_key,
+			public_key: public_key.to_vec(),
 		}
 	}
 }
@@ -346,7 +348,8 @@ pub trait OrderInterface {
 }
 
 /// resourceOrder
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
+#[scale_info(skip_type_params(Duration))]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ApplyOrder<AccountId, BlockNumber> {
 	/// OrderIdIndex
@@ -360,7 +363,7 @@ pub struct ApplyOrder<AccountId, BlockNumber> {
 	/// BlockAtCreationTime
 	pub create: BlockNumber,
 	/// Timestamp
-	pub time: Duration,
+	pub time: u64,
 	/// OrderStatus
 	pub status: OrderStatus,
 }
@@ -382,7 +385,7 @@ impl<AccountId, BlockNumber> ApplyOrder<AccountId, BlockNumber>
 			peer_id: Default::default(),
 			tenant_info,
 			create,
-			time,
+			time: time.as_secs(),
 			status: OrderStatus::Pending,
 		}
 	}

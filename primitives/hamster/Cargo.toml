@@ -21,6 +21,7 @@ frame-support = { version = "4.0.0-dev", default-features = false, path = "./../
 frame-system = {version = "4.0.0-dev", default-features = false, path = "./../../frame/system"}
 serde = { version = "1.0.144", optional = true}
 sp-debug-derive = { version = "4.0.0", default-features = false, path = "../debug-derive"}
+scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 
 [features]
 default = ['std']

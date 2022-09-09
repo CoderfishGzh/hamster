@@ -1,5 +1,17 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(test)]
+pub(crate) mod mock;
+#[cfg(test)]
+mod tests;
+
+#[cfg(feature = "runtime-benchmarks")]
+pub mod benchmarking;
+#[cfg(any(feature = "runtime-benchmarks", test))]
+pub mod testing_utils;
+pub mod weights;
+pub use weights::WeightInfo;
+
 use frame_support::sp_runtime::traits::Convert;
 use frame_support::{dispatch::DispatchResult, pallet_prelude::*, traits::Currency, transactional};
 use frame_system::pallet_prelude::*;
@@ -19,7 +31,8 @@ const GATEWAY_LIMIT: u64 = 1000;
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
-
+	use crate::WeightInfo;
+	
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
@@ -46,6 +59,7 @@ pub mod pallet {
 
 		type MarketInterface: MarketInterface<Self::AccountId>;
 
+		type WeightInfo: WeightInfo;
 	}
 
 	#[pallet::pallet]
@@ -135,6 +149,23 @@ pub mod pallet {
 		}
 	}
 
+	#[cfg(feature = "std")]
+	impl<T: Config> GenesisConfig<T, > {
+		/// Direct implementation of `GenesisBuild::build_storage`.
+		///
+		/// Kept in order not to break dependency.
+		pub fn build_storage(&self) -> Result<sp_runtime::Storage, String> {
+			<Self as GenesisBuild<T>>::build_storage(self)
+		}
+
+		/// Direct implementation of `GenesisBuild::assimilate_storage`.
+		///
+		/// Kept in order not to break dependency.
+		pub fn assimilate_storage(&self, storage: &mut sp_runtime::Storage) -> Result<(), String> {
+			<Self as GenesisBuild<T>>::assimilate_storage(self, storage)
+		}
+	}
+
 	// Pallets use events to inform users when important changes are made.
 	// https://substrate.dev/docs/en/knowledgebase/runtime/events
 	#[pallet::event]
@@ -197,7 +228,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// register gateway node
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::register_gateway_node())]
 		pub fn register_gateway_node(account_id: OriginFor<T>, peer_id: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(account_id)?;
 
@@ -269,7 +300,7 @@ pub mod pallet {
 
 		/// gateway node heartbeat
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::heartbeat())]
 		pub fn heartbeat(origin: OriginFor<T>, peer_id: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			// get gateway node
@@ -298,7 +329,7 @@ pub mod pallet {
 
 		/// Take the specified peer offline
 		#[transactional]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::offline())]
 		pub fn offline(account_id: OriginFor<T>, peer_id: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(account_id)?;
 
@@ -323,6 +354,10 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
+
+	pub fn change_staking_for_benchmarking(who: T::AccountId) {
+		T::MarketInterface::change_staking_for_benchmarking(who);
+	}
 
 	pub fn offline_gateway_node(who: T::AccountId, peer_id: Vec<u8>) {
 		// 1. update the gateway node count

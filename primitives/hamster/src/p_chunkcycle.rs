@@ -5,6 +5,7 @@ use frame_support::Parameter;
 use sp_debug_derive::RuntimeDebug;
 use frame_support::sp_runtime::traits::AtLeast32BitUnsigned;
 use sp_std::vec::Vec;
+use scale_info::TypeInfo;
 
 pub trait ForChunkCycle {
 	fn gateway_chunk_cycle();
@@ -20,7 +21,7 @@ pub trait ChunkCycleInterface<AccountId, BlockNumber>
 	fn push(ds: ForDs<AccountId, BlockNumber>, payout: u128);
 }
 
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 pub enum ForDs<AccountId, BlockNumber>
 	where
 		BlockNumber: Parameter + AtLeast32BitUnsigned,

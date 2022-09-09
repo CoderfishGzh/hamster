@@ -3350,6 +3350,7 @@ dependencies = [
  "pallet-bounties",
  "pallet-burn",
  "pallet-child-bounties",
+ "pallet-chunkcycle",
  "pallet-collective",
  "pallet-contracts",
  "pallet-contracts-primitives",
@@ -3359,12 +3360,14 @@ dependencies = [
  "pallet-election-provider-multi-phase",
  "pallet-election-provider-support-benchmarking",
  "pallet-elections-phragmen",
+ "pallet-gateway",
  "pallet-gilt",
  "pallet-grandpa",
  "pallet-identity",
  "pallet-im-online",
  "pallet-indices",
  "pallet-lottery",
+ "pallet-market",
  "pallet-membership",
  "pallet-mmr",
  "pallet-multisig",
@@ -3374,12 +3377,14 @@ dependencies = [
  "pallet-offences",
  "pallet-offences-benchmarking",
  "pallet-preimage",
+ "pallet-provider",
  "pallet-proxy",
  "pallet-randomness-collective-flip",
  "pallet-ranked-collective",
  "pallet-recovery",
  "pallet-referenda",
  "pallet-remark",
+ "pallet-resource-order",
  "pallet-scheduler",
  "pallet-session",
  "pallet-session-benchmarking",
@@ -5434,6 +5439,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-chunkcycle"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-hamster",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-collective"
 version = "4.0.0-dev"
 dependencies = [
@@ -5683,6 +5703,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-gateway"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances",
+ "pallet-chunkcycle",
+ "pallet-market",
+ "pallet-provider",
+ "pallet-resource-order",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-hamster",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-gilt"
 version = "4.0.0-dev"
 dependencies = [
@@ -5795,6 +5838,29 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-market"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances",
+ "pallet-chunkcycle",
+ "pallet-gateway",
+ "pallet-provider",
+ "pallet-resource-order",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-hamster",
  "sp-io",
  "sp-runtime",
  "sp-std",
@@ -6032,6 +6098,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-provider"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances",
+ "pallet-chunkcycle",
+ "pallet-gateway",
+ "pallet-market",
+ "pallet-resource-order",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-hamster",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-proxy"
 version = "4.0.0-dev"
 dependencies = [
@@ -6128,6 +6217,29 @@ dependencies = [
  "scale-info",
  "serde",
  "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-resource-order"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances",
+ "pallet-chunkcycle",
+ "pallet-gateway",
+ "pallet-market",
+ "pallet-provider",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-hamster",
  "sp-io",
  "sp-runtime",
  "sp-std",
@@ -6247,6 +6359,7 @@ dependencies = [
  "serde",
  "sp-application-crypto",
  "sp-core",
+ "sp-hamster",
  "sp-io",
  "sp-npos-elections",
  "sp-runtime",
@@ -9762,6 +9875,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-core",
  "sp-debug-derive",
@@ -11144,7 +11258,7 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 1.0.0",
+ "cfg-if 0.1.10",
  "digest 0.10.3",
  "rand 0.8.5",
  "static_assertions",

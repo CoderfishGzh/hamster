@@ -5,9 +5,10 @@ use serde::{Deserialize, Serialize};
 use sp_debug_derive::RuntimeDebug;
 use frame_support::sp_runtime::traits::AtLeast32BitUnsigned;
 use sp_std::vec::Vec;
+use scale_info::TypeInfo;
 
 /// ComputingResources
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ComputingResource<BlockNumber, AccountId>
 	where
@@ -71,7 +72,7 @@ impl<BlockNumber, AccountId> ComputingResource<BlockNumber, AccountId>
 }
 
 /// Provider points
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ProviderPoints {
 	pub total_points: u128,
@@ -101,7 +102,7 @@ impl ProviderPoints {
 	}
 }
 
-#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, Copy, Clone)]
+#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, Copy, Clone, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum ResourceStatus {
 	/// using
@@ -115,7 +116,7 @@ pub enum ResourceStatus {
 }
 
 /// resource configuration
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ResourceConfig {
 	pub cpu: u64,
@@ -136,7 +137,7 @@ impl ResourceConfig {
 }
 
 /// resource statistics
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ResourceRentalStatistics {
 	/// number of leases
@@ -186,7 +187,7 @@ impl ResourceRentalStatistics {
 }
 
 /// resource rental information
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ResourceRentalInfo<BlockNumber> {
 	/// rental unit price
@@ -222,4 +223,5 @@ impl<BlockNumber> ResourceRentalInfo<BlockNumber> {
 
 pub trait ProviderInterface<AccountId> {
 	fn get_providers_points() -> (Vec<(AccountId, ProviderPoints)>, u128, u128);
+	fn create_resource_by_benchmarking(who: AccountId);
 }
