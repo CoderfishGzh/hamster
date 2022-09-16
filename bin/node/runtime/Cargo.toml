@@ -113,7 +113,7 @@ pallet-provider = { version = "4.0.0-dev", default-features = false, path = "../
 pallet-resource-order = { version = "4.0.0-dev", default-features = false, path = "../../../frame/resource-order" }
 pallet-chunkcycle = { version = "4.0.0-dev", default-features = false, path = "../../../frame/chunkcycle" }
 pallet-market = { version = "4.0.0-dev", default-features = false, path = "../../../frame/market" }
-
+pallet-hamster-api = { version = "4.0.0-dev", default-features = false , path = "../../../frame/hamster-api"}
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", path = "../../../utils/wasm-builder" }
 

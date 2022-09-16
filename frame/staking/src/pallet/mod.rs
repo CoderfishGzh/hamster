@@ -29,12 +29,11 @@ use frame_support::{
 };
 use frame_system::{ensure_root, ensure_signed, pallet_prelude::*};
 use sp_runtime::{
-	traits::{CheckedSub, SaturatedConversion, StaticLookup, Zero, Convert},
+	traits::{CheckedSub, SaturatedConversion, StaticLookup, Zero},
 	Perbill, Percent,
 };
 use sp_staking::{EraIndex, SessionIndex};
 use sp_std::{cmp::max, prelude::*};
-use sp_hamster::p_market::MarketInterface;
 
 mod impls;
 

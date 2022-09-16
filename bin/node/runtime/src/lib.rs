@@ -537,7 +537,7 @@ pallet_staking_reward_curve::build! {
 }
 
 parameter_types! {
-	pub const SessionsPerEra: sp_staking::SessionIndex = 6;
+	pub const SessionsPerEra: sp_staking::SessionIndex = 2;
 	pub const BondingDuration: sp_staking::EraIndex = 24 * 28;
 	pub const SlashDeferDuration: sp_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
 	pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
@@ -1604,6 +1604,12 @@ impl pallet_burn::Config for Runtime {
 	type Currency = Balances;
 }
 
+
+impl pallet_hamster_api::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+}
+
 parameter_types! {
     // polling interval
     pub const ResourceInterval: BlockNumber = 3 * HOURS;
@@ -1744,6 +1750,7 @@ construct_runtime!(
 		ResourceOrder: pallet_resource_order,
 		Chunkcycle: pallet_chunkcycle,
 		Market: pallet_market,
+		HamsterApi: pallet_hamster_api,
 	}
 );
 

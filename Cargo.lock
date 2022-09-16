@@ -3363,6 +3363,7 @@ dependencies = [
  "pallet-gateway",
  "pallet-gilt",
  "pallet-grandpa",
+ "pallet-hamster-api",
  "pallet-identity",
  "pallet-im-online",
  "pallet-indices",
@@ -5769,6 +5770,21 @@ dependencies = [
  "sp-runtime",
  "sp-session",
  "sp-staking",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-hamster-api"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-hamster",
+ "sp-runtime",
  "sp-std",
 ]
 
